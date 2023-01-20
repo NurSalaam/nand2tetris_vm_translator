@@ -22,25 +22,19 @@ class CodeWriter:
       self._output_file.writelines(_write_sub())
     elif command == "neg":
       self._output_file.writelines(_write_neg())
-    # eq
     elif command == "eq":
       self._output_file.writelines(_write_eq(self._eq_index))
       self._eq_index += 1
-    # gt
     elif command == "gt":
       self._output_file.writelines(_write_gt(self._gt_index))
       self._gt_index += 1
-    # lt
     elif command == "lt":
       self._output_file.writelines(_write_lt(self._lt_index))
       self._lt_index += 1
-    # and
     elif command == "and":
       self._output_file.writelines(_write_and())
-    # or
     elif command == "or":
       self._output_file.writelines(_write_or())
-    # not
     elif command == "not":
       self._output_file.writelines(_write_not())
 
@@ -128,6 +122,7 @@ def _write_not():
   return command
 
 
+
 def _write_push(segment, index):
   ### Return the assembly command for the push command depending on the segment and
   ### index.
@@ -140,42 +135,49 @@ def _write_push(segment, index):
     return constant
   elif segment == "local":
     #TODO: implement push local
-    pass
+    raise NotImplementedError("push local not implemented")
   elif segment == "argument":
     #TODO: implement push argument
-    pass
+    raise NotImplementedError("push argument not implemented")
   elif segment == "this":
     #TODO: implement push this
-    pass
+    raise NotImplementedError("push this not implemented")
   elif segment == "that":
     #TODO: implement push that
-    pass
+    raise NotImplementedError("push that not implemented")
+  elif segment == "static":
+    raise NotImplementedError("push static not implemented")
   elif segment == "temp":
     #TODO: implement push temp
-    pass
+    raise NotImplementedError(
+      "push temp not implemented")
   elif segment == "pointer":
     #TODO: implement push pointer
-    pass
+    raise NotImplementedError("push pointer not implemented")
 
 
 def _write_pop(segment, index):
   ### Return the assembly command for the pop command depending on the segment and
   ### index.
   if segment == "local":
-    #TODO: implement pop local
-    pass
+    pop_local = [f"\n//{command} {segment} {index}\n", f"@{index}\n", "D=A\n", "@LCL\n", "M=M+D\n", "@SP\n", "AM=M-1\n", "D=M\n",
+                "@LCL\n", "A=M\n", "M=D\n"]
+    return pop_local
   elif segment == "argument":
-    #TODO: implement pop argument
-    pass
+    pop_argument = [f"\n//{command} {segment} {index}\n", f"@{index}\n", "D=A\n", "@ARG\n", "M=M+D\n", "@SP\n", "AM=M-1\n", "D=M\n", "@ARG\n", "A=M\n", "M=D\n"]
+    return pop_argument
   elif segment == "this":
-    #TODO: implement pop this
-    pass
+    pop_this = [f"\n//{command} {segment} {index}\n", f"@{index}\n", "D=A\n", "@THIS\n", "M=M+D\n", "@SP\n", "AM=M-1\n", "D=M\n", "@THIS\n", "A=M\n", "M=D\n"]
+    return pop_this
   elif segment == "that":
-    #TODO: implement pop that
-    pass
+    pop_that = [f"\n//{command} {segment} {index}\n", f"@{index}\n", "D=A\n", "@THAT\n", "M=M+D\n", "@SP\n", "AM=M-1\n", "D=M\n", "@THAT\n", "A=M\n", "M=D\n"]
+    return pop_that
+  elif segment == "static":
+    #TODO: implement pop static
+    raise NotImplementedError("pop static not implemented")
   elif segment == "temp":
     #TODO: implement pop temp
-    pass
+    raise NotImplementedError("pop temp not implemented"))
   elif segment == "pointer":
     #TODO: implement pop pointer
-    pass
+    raise NotImplementedError("pop pointer not implemented")

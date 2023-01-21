@@ -12,6 +12,8 @@ class CodeWriter:
     self._gt_index = 0
     self._lt_index = 0
 
+    self._file_name = output_file.split('/')[-1].split('.')[0]
+
   def write_arithmetic(self, command):  #str
     ### Writes to the output file the assembly code that implements
     ### the given arithmetic command.
@@ -22,25 +24,19 @@ class CodeWriter:
       self._output_file.writelines(_write_sub())
     elif command == "neg":
       self._output_file.writelines(_write_neg())
-    # eq
     elif command == "eq":
       self._output_file.writelines(_write_eq(self._eq_index))
       self._eq_index += 1
-    # gt
     elif command == "gt":
       self._output_file.writelines(_write_gt(self._gt_index))
       self._gt_index += 1
-    # lt
     elif command == "lt":
       self._output_file.writelines(_write_lt(self._lt_index))
       self._lt_index += 1
-    # and
     elif command == "and":
       self._output_file.writelines(_write_and())
-    # or
     elif command == "or":
       self._output_file.writelines(_write_or())
-    # not
     elif command == "not":
       self._output_file.writelines(_write_not())
 
@@ -48,9 +44,10 @@ class CodeWriter:
     ### Writes to the output file the assembly code that implements
     ### the given command given, where command is either C_PUSH or C_POP.
     if command == C_PUSH:
-      self._output_file.writelines(_write_push(segment, index))
+      self._output_file.writelines(_write_push(segment, index,
+                                               self._file_name))
     else:
-      self._output_file.writelines(_write_pop(segment, index))
+      self._output_file.writelines(_write_pop(segment, index, self._file_name))
 
   def close(self):
     ### Closes the output file/stream
@@ -128,54 +125,119 @@ def _write_not():
   return command
 
 
-def _write_push(segment, index):
+def _write_push(segment, index, output_file):
   ### Return the assembly command for the push command depending on the segment and
   ### index.
   command = "push"
   if segment == "constant":
-    constant = [
+    push_constant = [
       f"\n//{command} {segment} {index}\n", f"@{index}\n", "D=A\n", "@SP\n",
       "A=M\n", "M=D\n", "@SP\n", "M=M+1\n"
     ]
-    return constant
+    return push_constant
   elif segment == "local":
-    #TODO: implement push local
-    pass
+    push_local = [
+      f"\n//{command} {segment} {index}\n", f"@{index}\n", "D=A\n", "@LCL\n",
+      "A=M+D\n", "D=M\n", "@SP\n", "A=M\n", "M=D\n", "@SP\n", "M=M+1\n"
+    ]
+    return push_local
   elif segment == "argument":
-    #TODO: implement push argument
-    pass
+    push_argument = [
+      f"\n//{command} {segment} {index}\n", f"@{index}\n", "D=A\n", "@ARG\n",
+      "A=M+D\n", "D=M\n", "@SP\n", "A=M\n", "M=D\n", "@SP\n", "M=M+1\n"
+    ]
+    return push_argument
   elif segment == "this":
-    #TODO: implement push this
-    pass
+    push_this = [
+      f"\n//{command} {segment} {index}\n", f"@{index}\n", "D=A\n", "@THIS\n",
+      "A=M+D\n", "D=M\n", "@SP\n", "A=M\n", "M=D\n", "@SP\n", "M=M+1\n"
+    ]
+    return push_this
   elif segment == "that":
-    #TODO: implement push that
-    pass
+    push_that = [
+      f"\n//{command} {segment} {index}\n", f"@{index}\n", "D=A\n", "@THAT\n",
+      "A=M+D\n", "D=M\n", "@SP\n", "A=M\n", "M=D\n", "@SP\n", "M=M+1\n"
+    ]
+    return push_that
+  elif segment == "static":
+    push_static = [
+      f"\n//{command} {segment} {index}\n", f"@{output_file}.{index}\n",
+      "D=M\n", "@SP\n", "A=M\n", "M=D\n", "@SP\n", "M=M+1\n"
+    ]
+    return push_static
   elif segment == "temp":
-    #TODO: implement push temp
-    pass
+    temp = 5 + int(index)
+    push_temp = [
+      f"\n//{command} {segment} {index}\n", f"@{temp}\n", "D=M\n", "@SP\n",
+      "A=M\n", "M=D\n", "@SP\n", "M=M+1\n"
+    ]
+    return push_temp
   elif segment == "pointer":
-    #TODO: implement push pointer
-    pass
+    this_or_that = ""
+    if index == "0":
+      this_or_that = "THIS"
+    elif index == "1":
+      this_or_that = "THAT"
+    push_pointer = [
+      f"\n//{command} {segment} {index}\n", f"@{this_or_that}\n", "D=M\n",
+      "@SP\n", "A=M\n", "M=D\n", "@SP\n", "M=M+1\n"
+    ]
+    return push_pointer
 
 
-def _write_pop(segment, index):
+def _write_pop(segment, index, output_file):
   ### Return the assembly command for the pop command depending on the segment and
   ### index.
+  command = "pop"
   if segment == "local":
-    #TODO: implement pop local
-    pass
+    pop_local = [
+      f"\n//{command} {segment} {index}\n", f"@{index}\n", "D=A\n", "@LCL\n",
+      "D=M+D\n", "@R13\n", "M=D\n", "@SP\n", "AM=M-1\n", "D=M\n", "@R13\n",
+      "A=M\n", "M=D\n"
+    ]
+    return pop_local
   elif segment == "argument":
-    #TODO: implement pop argument
-    pass
+    pop_argument = [
+      f"\n//{command} {segment} {index}\n", f"@{index}\n", "D=A\n", "@ARG\n",
+      "D=M+D\n", "@R13\n", "M=D\n", "@SP\n", "AM=M-1\n", "D=M\n", "@R13\n",
+      "A=M\n", "M=D\n"
+    ]
+    return pop_argument
   elif segment == "this":
-    #TODO: implement pop this
-    pass
+    pop_this = [
+      f"\n//{command} {segment} {index}\n", f"@{index}\n", "D=A\n", "@THIS\n",
+      "D=M+D\n", "@R13\n", "M=D\n", "@SP\n", "AM=M-1\n", "D=M\n", "@R13\n",
+      "A=M\n", "M=D\n"
+    ]
+    return pop_this
   elif segment == "that":
-    #TODO: implement pop that
-    pass
+    pop_that = [
+      f"\n//{command} {segment} {index}\n", f"@{index}\n", "D=A\n", "@THAT\n",
+      "D=M+D\n", "@R13\n", "M=D\n", "@SP\n", "AM=M-1\n", "D=M\n", "@R13\n",
+      "A=M\n", "M=D\n"
+    ]
+    return pop_that
+  elif segment == "static":
+    pop_static = [
+      f"\n//{command} {segment} {index}\n", "@SP\n", "AM=M-1\n", "D=M\n",
+      f"@{output_file}.{index}\n", "M=D\n"
+    ]
+    return pop_static
   elif segment == "temp":
-    #TODO: implement pop temp
-    pass
+    temp = 5 + int(index)
+    pop_temp = [
+      f"\n//{command} {segment} {index}\n", "@SP\n", "AM=M-1\n", "D=M\n",
+      f"@{temp}\n", "M=D\n"
+    ]
+    return pop_temp
   elif segment == "pointer":
-    #TODO: implement pop pointer
-    pass
+    this_or_that = ""
+    if index == "0":
+      this_or_that = "THIS"
+    elif index == "1":
+      this_or_that = "THAT"
+    pop_pointer = [
+      f"\n//{command} {segment} {index}\n", "@SP\n", "AM=M-1\n", "D=M\n",
+      f"@{this_or_that}\n", "M=D\n"
+    ]
+    return pop_pointer

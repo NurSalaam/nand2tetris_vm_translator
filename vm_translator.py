@@ -1,5 +1,5 @@
 import os
-from parser import Parser, C_ARITHMETIC, C_PUSH, C_POP
+from parser import Parser, C_ARITHMETIC, C_PUSH, C_POP, C_LABEL, C_GOTO, C_IF, C_FUNCTION, C_CALL, C_RETURN
 from code_writer import CodeWriter
 
 
@@ -28,6 +28,7 @@ class VMTranslator:
     print(self._files)
   
     for file in self._files:
+      self._code_writer.set_file_name(file)
       path = f"{self._dir}/{file}"
       print(f"Parsing {path}...")
     
@@ -39,17 +40,27 @@ class VMTranslator:
         # March
         parser.advance()
         # Switch on parser.command_type()
-        if parser.command_type() == C_ARITHMETIC:
+        command_type = parser.command_type()
+        if command_type == C_ARITHMETIC:
           command = parser.arg1()
           self._code_writer.write_arithmetic(command)
-        elif (parser.command_type() == C_PUSH) or (parser.command_type()
+        elif (command_type == C_PUSH) or (command_type
                                                    == C_POP):
-          command = parser.command_type()
+          command = command_type
           segment = parser.arg1()
           index = parser.arg2()
           self._code_writer.write_push_pop(command, segment, index)
+        elif command_type == C_LABEL:
+          label = parser.arg1()
+          self._code_writer.write_label(label)
+        elif command_type == C_GOTO:
+          label = parser.arg1()
+          self._code_writer.write_goto(label)
+        elif command_type == C_IF:
+          label = parser.arg1()
+          self._code_writer.write_if(label)
         else:
-          pass
+          raise NotImplementedError('Implement switch on Branching and Function commands')
 
     # Close file
     self._code_writer.close()

@@ -14,6 +14,18 @@ class CodeWriter:
 
     self._file_name = output_file.split('/')[-1].split('.')[0]
 
+  def set_file_name(self, file_name):
+    '''Informs the CodeWriter instance that the translation of a new VM file
+    has started (called by the main program of the VM translator)'''
+    self._file_name = file_name.split('/')[-1].split('.')[0]
+    print(f"***NEW FILE***\n{self._file_name}\n")
+
+  def write_init(self):
+    '''Writes the assembly instructions that effect the bootstrap code that
+    initializes the VM.  This code must be placed at the beginning of the generated
+    .*asm file'''
+    return NotImplementedError('write_init not yet implemented')
+
   def write_arithmetic(self, command):  #str
     '''Writes to the output file the assembly code that implements the given arithmetic
     command.'''
@@ -48,6 +60,35 @@ class CodeWriter:
                                                self._file_name))
     else:
       self._output_file.writelines(_write_pop(segment, index, self._file_name))
+
+  def write_label(self, label):
+    '''Writes assembly code that effects the label command'''
+    label = [f'\n//label {label}\n', f'({label})\n']
+    self._output_file.writelines(label)
+
+  def write_goto(self, label):
+    '''Writes assembly code that effects the goto command'''
+    goto = [f'\n//goto {label}\n', f'@{label}\n', '0;JMP\n']
+    self._output_file.writelines(goto)
+
+  def write_if(self, label):
+    '''Writes assembly code that effects the if command'''
+    if_goto = [
+      f'\n//if-goto {label}\n', '@SP\n', 'AM=M-1\n', 'D=M\n', f'@{label}\n', 'D;JNE\n'
+    ]
+    self._output_file.writelines(if_goto)
+
+  def write_function(self, func_name, num_vars):
+    '''Writes assembly code that effects the function command'''
+    raise NotImplementedError("write_function not yet implemented")
+
+  def write_call(self, func_name, num_args):
+    '''Writes assembly code that effects the call command'''
+    raise NotImplementedError("write_call not yet implemented")
+
+  def write_return():
+    '''Writes assembly code that effects the return command'''
+    raise NotImplementedError("write_return not yet implemented")
 
   def close(self):
     '''Closes the output file/stream'''

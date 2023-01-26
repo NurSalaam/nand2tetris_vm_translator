@@ -15,7 +15,7 @@ def main():
       vmt = VMTranslator(path)
       vmt.translate()
   else:
-    print("Missing Argument: Expected exactly one path to file")
+    print("Missing Argument: Expected exactly one path to a file or directory")
 
 
 if __name__ == '__main__':

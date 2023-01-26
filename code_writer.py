@@ -2,7 +2,7 @@ from parser import C_PUSH
 
 
 class CodeWriter:
-  ### Generates assembly code from the parsed VM command (note singular)
+  '''Generates assembly code from the parsed VM command (note singular)'''
 
   def __init__(self, output_file):
     ### Opens the output file/stream and gets ready to write into it
@@ -15,8 +15,8 @@ class CodeWriter:
     self._file_name = output_file.split('/')[-1].split('.')[0]
 
   def write_arithmetic(self, command):  #str
-    ### Writes to the output file the assembly code that implements
-    ### the given arithmetic command.
+    '''Writes to the output file the assembly code that implements the given arithmetic
+    command.'''
 
     if command == "add":
       self._output_file.writelines(_write_add())
@@ -41,8 +41,8 @@ class CodeWriter:
       self._output_file.writelines(_write_not())
 
   def write_push_pop(self, command, segment, index):
-    ### Writes to the output file the assembly code that implements
-    ### the given command given, where command is either C_PUSH or C_POP.
+    '''Writes to the output file the assembly code that implements the given command given,
+    where command is either C_PUSH or C_POP.'''
     if command == C_PUSH:
       self._output_file.writelines(_write_push(segment, index,
                                                self._file_name))
@@ -50,7 +50,7 @@ class CodeWriter:
       self._output_file.writelines(_write_pop(segment, index, self._file_name))
 
   def close(self):
-    ### Closes the output file/stream
+    '''Closes the output file/stream'''
     self._output_file.close()
 
 

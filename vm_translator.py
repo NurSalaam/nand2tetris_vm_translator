@@ -6,8 +6,10 @@ class VMTranslator:
 
   def __init__(self, input_path):
     self._input_path = input_path
-
-    output_path = input_path.replace(".vm", ".asm")
+    if ".vm" in input_path:
+      output_path = input_path.replace(".vm", ".asm")
+    else:
+      output_path = input_path + ".asm"
     self._output_path = output_path
 
   def translate(self):

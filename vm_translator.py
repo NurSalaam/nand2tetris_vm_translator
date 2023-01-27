@@ -59,6 +59,12 @@ class VMTranslator:
         elif command_type == C_IF:
           label = parser.arg1()
           self._code_writer.write_if(label)
+        elif command_type == C_FUNCTION:
+          func_name = parser.arg1()
+          num_vars = parser.arg2()
+          self._code_writer.write_function(func_name, num_vars)
+        elif command_type == C_RETURN:
+          self._code_writer.write_return()
         else:
           raise NotImplementedError('Implement switch on Branching and Function commands')
 

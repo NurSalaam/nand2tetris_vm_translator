@@ -11,6 +11,8 @@ class CodeWriter:
     self._eq_index = 0
     self._gt_index = 0
     self._lt_index = 0
+    self._current_function = ''
+    self._call_count = 0
 
     self._file_name = output_file.split('/')[-1].split('.')[0]
 
@@ -63,32 +65,59 @@ class CodeWriter:
 
   def write_label(self, label):
     '''Writes assembly code that effects the label command'''
-    label = [f'\n//label {label}\n', f'({label})\n']
+    if self._current_function:
+      asm_label = f'{self._file_name}.{self._current_function}.{label}'
+    else:
+      asm_label = f'{self._file_name}.{label}'
+    label = [f'\n//label {label}\n', f'({asm_label})\n']
     self._output_file.writelines(label)
 
   def write_goto(self, label):
     '''Writes assembly code that effects the goto command'''
-    goto = [f'\n//goto {label}\n', f'@{label}\n', '0;JMP\n']
+    if self._current_function:
+      asm_label = f'{self._file_name}.{self._current_function}.{label}'
+    else:
+      asm_label = f'{self._file_name}.{label}'
+    goto = [f'\n//goto {label}\n', f'@{asm_label}\n', '0;JMP\n']
     self._output_file.writelines(goto)
 
   def write_if(self, label):
     '''Writes assembly code that effects the if command'''
+    if self._current_function:
+      asm_label = f'{self._file_name}.{self._current_function}.{label}'
+    else:
+      asm_label = f'{self._file_name}.{label}'
     if_goto = [
-      f'\n//if-goto {label}\n', '@SP\n', 'AM=M-1\n', 'D=M\n', f'@{label}\n', 'D;JNE\n'
+      f'\n//if-goto {label}\n', '@SP\n', 'AM=M-1\n', 'D=M\n',
+      f'@{asm_label}\n', 'D;JNE\n'
     ]
     self._output_file.writelines(if_goto)
 
   def write_function(self, func_name, num_vars):
     '''Writes assembly code that effects the function command'''
-    raise NotImplementedError("write_function not yet implemented")
+    self._current_function = func_name
+    func_cmd = [f'\n// function {func_name} {num_vars}\n', f'({self._file_name}.{func_name})\n']
+    for i in range(int(num_vars)):
+      func_cmd.extend(['@SP\n', 'A=M\n', 'M=0\n', '@SP\n', 'M=M+1\n'])
+    self._output_file.writelines(func_cmd)
 
   def write_call(self, func_name, num_args):
     '''Writes assembly code that effects the call command'''
     raise NotImplementedError("write_call not yet implemented")
 
-  def write_return():
+  def write_return(self):
     '''Writes assembly code that effects the return command'''
-    raise NotImplementedError("write_return not yet implemented")
+    return_cmd = [
+      '\n//return\n', "@LCL\n", "D=M\n", "@R13\n", "M=D\n", "@5\n", "D=A\n",
+      "@R13\n", "A=M-D\n", "D=M\n", "@R14\n", "M=D\n", "@SP\n", "AM=M-1\n",
+      "D=M\n", "@ARG\n", "A=M\n", "M=D\n", "@ARG\n", "D=M+1\n", "@SP\n",
+      "M=D\n", "@1\n", "D=A\n", "@R13\n", "A=M-D\n", "D=M\n", "@THAT\n",
+      "M=D\n", "@2\n", "D=A\n", "@R13\n", "A=M-D\n", "D=M\n", "@THIS\n",
+      "M=D\n", "@3\n", "D=A\n", "@R13\n", "A=M-D\n", "D=M\n", "@ARG\n",
+      "M=D\n", "@4\n", "D=A\n", "@R13\n", "A=M-D\n", "D=M\n", "@LCL\n",
+      "M=D\n", "@R14\n", "A=M\n", "0;JMP\n"
+    ]
+    self._output_file.writelines(return_cmd)
 
   def close(self):
     '''Closes the output file/stream'''

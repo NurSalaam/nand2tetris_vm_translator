@@ -26,6 +26,7 @@ class VMTranslator:
 
   def translate(self):
     print(self._files)
+    self._code_writer.write_init()
   
     for file in self._files:
       self._code_writer.set_file_name(file)
@@ -65,8 +66,12 @@ class VMTranslator:
           self._code_writer.write_function(func_name, num_vars)
         elif command_type == C_RETURN:
           self._code_writer.write_return()
+        elif command_type == C_CALL:
+          func_name = parser.arg1()
+          num_args = parser.arg2()
+          self._code_writer.write_call(func_name, num_args)
         else:
-          raise NotImplementedError('Implement switch on Branching and Function commands')
+          raise Exception("Unknown command type")
 
     # Close file
     self._code_writer.close()

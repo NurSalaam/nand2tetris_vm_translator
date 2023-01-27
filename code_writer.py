@@ -96,14 +96,114 @@ class CodeWriter:
   def write_function(self, func_name, num_vars):
     '''Writes assembly code that effects the function command'''
     self._current_function = func_name
-    func_cmd = [f'\n// function {func_name} {num_vars}\n', f'({self._file_name}.{func_name})\n']
+    func_cmd = [
+      f'\n// function {func_name} {num_vars}\n',
+      f'({self._file_name}.{func_name})\n'
+    ]
     for i in range(int(num_vars)):
       func_cmd.extend(['@SP\n', 'A=M\n', 'M=0\n', '@SP\n', 'M=M+1\n'])
     self._output_file.writelines(func_cmd)
 
   def write_call(self, func_name, num_args):
     '''Writes assembly code that effects the call command'''
-    raise NotImplementedError("write_call not yet implemented")
+    self._call_count += 1
+    call_count = self._call_count
+    call = [  ## push return address onto stack
+      f'\n// call {func_name} {num_args}\n'
+      # load return address label
+      f'@{self._file_name}.{func_name}$ret.{call_count}\n',
+      # get address value
+      'D=A\n',
+      # load stack pointer
+      '@SP\n',
+      # load address
+      'A=M\n',
+      # set value at address to D, return address
+      'M=D\n',
+      # increment stack pointer
+      '@SP\n',
+      'M=M+1\n',
+      ## push LCL address onto stack
+      # load register with address value
+      '@LCL\n',
+      # get its address
+      'D=M\n',
+      # load stack pointer
+      '@SP\n',
+      # load address
+      'A=M\n',
+      # set value at address to D, return address
+      'M=D\n',
+      # increment stack pointer
+      '@SP\n',
+      'M=M+1\n',
+      ## push ARG address onto stack
+      # load register with address value
+      '@ARG\n',
+      # get its address
+      'D=M\n',
+      # load stack pointer
+      '@SP\n',
+      # load address
+      'A=M\n',
+      # set value at address to D, return address
+      'M=D\n',
+      # increment stack pointer
+      '@SP\n',
+      'M=M+1\n',
+      ## push THIS address onto stack
+      # load register with address value
+      '@THIS\n',
+      # get its address
+      'D=M\n',
+      # load stack pointer
+      '@SP\n',
+      # load address
+      'A=M\n',
+      # set value at address to D, return address
+      'M=D\n',
+      # increment stack pointer
+      '@SP\n',
+      'M=M+1\n',
+      ## push THAT address onto stack
+      # load register with address value
+      '@THAT\n',
+      # get its address
+      'D=M\n',
+      # load stack pointer
+      '@SP\n',
+      # load address
+      'A=M\n',
+      # set value at address to D, return address
+      'M=D\n',
+      # increment stack pointer
+      '@SP\n',
+      'M=M+1\n',
+      ## ARG = SP - nArgs - 5
+      # get value of SP
+      '@SP\n',
+      'D=M\n',
+      # substract num arguments
+      f'@{num_args}\n',
+      'D=D-A\n',
+      # subtract 5
+      '@5\n'
+      'D=D-A\n',
+      # set ARG
+      '@ARG\n',
+      'M=D\n',
+      ## LCL = SP reposition LCL
+      '@SP\n',
+      'D=M\n',
+      '@LCL\n',
+      'M=D\n',
+      ## jump to function (which will run this function's instructions)
+      f'@{self._file_name}.{func_name}\n',
+      '0;JMP\n',
+      ## label for return address
+      f'({self._file_name}.{func_name}$ret.{call_count})\n'
+    ]
+    self._output_file.writelines(call)
 
   def write_return(self):
     '''Writes assembly code that effects the return command'''

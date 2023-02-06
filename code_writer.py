@@ -28,13 +28,15 @@ class CodeWriter:
     initializes the VM.  This code must be placed at the beginning of the generated
     .*asm file'''
     bootstrap = [
+        '\n//BOOTSTRAP\n'
         '@256\n',  # initialize the stack pointer to 256
         'D=A\n',
         '@SP\n',
-        'M=D\n',
-        self.write_call('Sys.init', 0),  # call the Sys.init function
+        'M=D\n'
     ]
     self._output_file.writelines(bootstrap)
+    self.write_call('Sys.init', 0)
+    
 
   def write_arithmetic(self, command):  #str
     '''Writes to the output file the assembly code that implements the given arithmetic
@@ -74,27 +76,27 @@ class CodeWriter:
   def write_label(self, label):
     '''Writes assembly code that effects the label command'''
     if self._current_function:
-      asm_label = f'{self._file_name}.{self._current_function}.{label}'
+      asm_label = f'{self._current_function}.{label}'
     else:
-      asm_label = f'{self._file_name}.{label}'
+      asm_label = f'{label}'
     label = [f'\n//label {label}\n', f'({asm_label})\n']
     self._output_file.writelines(label)
 
   def write_goto(self, label):
     '''Writes assembly code that effects the goto command'''
     if self._current_function:
-      asm_label = f'{self._file_name}.{self._current_function}.{label}'
+      asm_label = f'{self._current_function}.{label}'
     else:
-      asm_label = f'{self._file_name}.{label}'
+      asm_label = f'{label}'
     goto = [f'\n//goto {label}\n', f'@{asm_label}\n', '0;JMP\n']
     self._output_file.writelines(goto)
 
   def write_if(self, label):
     '''Writes assembly code that effects the if command'''
     if self._current_function:
-      asm_label = f'{self._file_name}.{self._current_function}.{label}'
+      asm_label = f'{self._current_function}.{label}'
     else:
-      asm_label = f'{self._file_name}.{label}'
+      asm_label = f'{label}'
     if_goto = [
       f'\n//if-goto {label}\n', '@SP\n', 'AM=M-1\n', 'D=M\n',
       f'@{asm_label}\n', 'D;JNE\n'
@@ -106,7 +108,7 @@ class CodeWriter:
     self._current_function = func_name
     func_cmd = [
       f'\n// function {func_name} {num_vars}\n',
-      f'({self._file_name}.{func_name})\n'
+      f'({func_name})\n'
     ]
     for i in range(int(num_vars)):
       func_cmd.extend(['@SP\n', 'A=M\n', 'M=0\n', '@SP\n', 'M=M+1\n'])
@@ -120,7 +122,7 @@ class CodeWriter:
     call = [  ## push return address onto stack
       f'\n// call {func_name} {num_args}\n'
       # load return address label
-      f'@{self._file_name}.{func_name}$ret.{call_count}\n',
+      f'@{func_name}$ret.{call_count}\n',
       # get address value
       'D=A\n',
       # load stack pointer
@@ -207,10 +209,10 @@ class CodeWriter:
       '@LCL\n',
       'M=D\n',
       ## jump to function (which will run this function's instructions)
-      f'@{self._file_name}.{func_name}\n',
+      f'@{func_name}\n',
       '0;JMP\n',
       ## label for return address
-      f'({self._file_name}.{func_name}$ret.{call_count})\n'
+      f'({func_name}$ret.{call_count})\n'
     ]
     self._output_file.writelines(call)
 

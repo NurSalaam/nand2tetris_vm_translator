@@ -9,12 +9,14 @@ class VMTranslator:
 
   def __init__(self, input_path):
     if ".vm" in input_path:
+      self.is_dir = False
       # i.e. path is to a file
       output_path = input_path.replace(".vm", ".asm")
       self._files = [input_path]
       self._dir = '.'
     else:
       # i.e. path is to a directory
+      self.is_dir = True
       # path doesn't end in '/'
       self._dir = input_path
       output_path = input_path + '/' + input_path.split('/')[-1] + ".asm"
@@ -35,7 +37,8 @@ class VMTranslator:
 
   def translate(self):
     print(self._files)
-    self._code_writer.write_init()
+    if self.is_dir:
+      self._code_writer.write_init()
   
     for file in self._files:
       self._code_writer.set_file_name(file)

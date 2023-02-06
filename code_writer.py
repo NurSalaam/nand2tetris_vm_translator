@@ -27,7 +27,14 @@ class CodeWriter:
     '''Writes the assembly instructions that effect the bootstrap code that
     initializes the VM.  This code must be placed at the beginning of the generated
     .*asm file'''
-    raise NotImplementedError('write_init not yet implemented')
+    bootstrap = [
+        '@256\n',  # initialize the stack pointer to 256
+        'D=A\n',
+        '@SP\n',
+        'M=D\n',
+        self.write_call('Sys.init', 0),  # call the Sys.init function
+    ]
+    self._output_file.writelines(bootstrap)
 
   def write_arithmetic(self, command):  #str
     '''Writes to the output file the assembly code that implements the given arithmetic
@@ -107,6 +114,7 @@ class CodeWriter:
 
   def write_call(self, func_name, num_args):
     '''Writes assembly code that effects the call command'''
+    #TODO: THINK ABOUT CHANGING CURRENT_FUNCTION
     self._call_count += 1
     call_count = self._call_count
     call = [  ## push return address onto stack

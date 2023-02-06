@@ -1,62 +1,4 @@
 //NestedCall.asm
-// Bootstrap
-@256
-D=A
-@SP
-M=D
-
-// call Sys.init 0
-@Sys.Sys.init$ret.1
-D=A
-@SP
-A=M
-M=D
-@SP
-M=M+1
-@LCL
-D=M
-@SP
-A=M
-M=D
-@SP
-M=M+1
-@ARG
-D=M
-@SP
-A=M
-M=D
-@SP
-M=M+1
-@THIS
-D=M
-@SP
-A=M
-M=D
-@SP
-M=M+1
-@THAT
-D=M
-@SP
-A=M
-M=D
-@SP
-M=M+1
-@SP
-D=M
-@0
-D=D-A
-@5
-D=D-A
-@ARG
-M=D
-@SP
-D=M
-@LCL
-M=D
-@Sys.Sys.init
-0;JMP
-(Sys.Sys.init$ret.1)
-
 // function Sys.init 0
 (Sys.Sys.init)
 
@@ -93,7 +35,7 @@ D=M
 M=D
 
 // call Sys.main 0
-@Sys.Sys.main$ret.2
+@Sys.Sys.main$ret.1
 D=A
 @SP
 A=M
@@ -142,7 +84,7 @@ D=M
 M=D
 @Sys.Sys.main
 0;JMP
-(Sys.Sys.main$ret.2)
+(Sys.Sys.main$ret.1)
 
 //pop temp 1
 @SP
@@ -297,7 +239,7 @@ M=D
 M=M+1
 
 // call Sys.add12 1
-@Sys.Sys.add12$ret.3
+@Sys.Sys.add12$ret.2
 D=A
 @SP
 A=M
@@ -346,7 +288,7 @@ D=M
 M=D
 @Sys.Sys.add12
 0;JMP
-(Sys.Sys.add12$ret.3)
+(Sys.Sys.add12$ret.2)
 
 //pop temp 0
 @SP

@@ -1,4 +1,7 @@
-//.asm(SimpleFunction.test)@SP
+//SimpleFunction.asm
+// function SimpleFunction.test 2
+(SimpleFunction.SimpleFunction.test)
+@SP
 A=M
 M=0
 @SP
@@ -91,6 +94,8 @@ AM=M-1
 M=M-D
 @SP
 M=M+1
+
+//return
 @LCL
 D=M
 @R13

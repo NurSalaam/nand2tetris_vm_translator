@@ -19,6 +19,8 @@ class VMTranslator:
       temp = os.listdir(input_path)
       self._files = [file for file in temp if '.vm' in file]
       self._dir = input_path
+      if input_path[-1] == '/':
+        self._dir = input_path[:-1]
     self._output_path = output_path
 
     # Construct a CodeWriter to handle the output_file.
@@ -26,7 +28,7 @@ class VMTranslator:
 
   def translate(self):
     print(self._files)
-    self._code_writer.write_init()
+    #self._code_writer.write_init()
   
     for file in self._files:
       self._code_writer.set_file_name(file)

@@ -19,6 +19,7 @@ class CodeWriter:
   def set_file_name(self, file_name):
     '''Informs the CodeWriter instance that the translation of a new VM file
     has started (called by the main program of the VM translator)'''
+    print(f"set_file_name: {file_name}")
     self._file_name = file_name.split('/')[-1].split('.')[0]
     print(f"***NEW FILE***\n{self._file_name}\n")
 
@@ -26,7 +27,7 @@ class CodeWriter:
     '''Writes the assembly instructions that effect the bootstrap code that
     initializes the VM.  This code must be placed at the beginning of the generated
     .*asm file'''
-    return NotImplementedError('write_init not yet implemented')
+    raise NotImplementedError('write_init not yet implemented')
 
   def write_arithmetic(self, command):  #str
     '''Writes to the output file the assembly code that implements the given arithmetic
